@@ -1,7 +1,7 @@
 # azure-infra-complete-professional
 # Azure Networking – VM-Based Hands‑On Labs (CLI‑Only, Student Account Safe)
 
-> **Goal**: Practice **real Azure networking services** using **Azure CLI**, with **zero / near‑zero cost**, designed for an **Azure Student account**.
+
 >
 > **Focus Areas**
 >
