@@ -1,43 +1,37 @@
-Perfect 👍 Below is a **clean, properly formatted, easy-to-copy GitHub README.md** version.
-
-No broken formatting.
-No extra commentary.
-Ready to paste directly into GitHub.
+Here is your **clean, professional `README.md` format** — properly structured, minimal, and ready to paste directly into GitHub.
 
 ---
 
-````markdown
 # 🎯 Azure VNet Master Lab (Cost-Optimized)
 
-> ✅ No Firewall Premium  
-> ✅ No ExpressRoute  
-> ✅ No WAF_v2  
-> ✅ Use Standard_B1s only  
-> ✅ Delete everything after lab  
+> Real-world Azure networking using smallest SKUs and minimal cost.
 
 ---
 
-# 🧠 Architecture Overview
+## 🛑 Cost Safety Rules
 
-![Hub-Spoke](https://learn.microsoft.com/en-us/azure/architecture/networking/guide/images/private-link-hub-spoke-network-basic-hub-spoke-diagram.svg)
+* ✅ Use `Standard_B1s` VM size only
+* ✅ Avoid Firewall Premium
+* ✅ Avoid ExpressRoute
+* ✅ Avoid WAF_v2
+* ✅ Stop VMs when not in use
+* ✅ Delete Resource Group after lab
+
+Check usage anytime:
+
+```bash
+az consumption usage list --top 5
+```
+
+---
+
+## 🧠 Architecture Overview
+
+![Hub-Spoke Architecture](https://learn.microsoft.com/en-us/azure/architecture/networking/guide/images/private-link-hub-spoke-network-basic-hub-spoke-diagram.svg)
 
 ![Private Endpoint](https://learn.microsoft.com/en-us/azure/private-link/media/private-endpoint-overview/private-endpoint-diagram.png)
 
 ![UDR Example](https://learn.microsoft.com/en-us/azure/virtual-network/media/virtual-networks-udr-overview/routing-example.png)
-
----
-
-# 🛑 Cost Safety Rules
-
-- Use `Standard_B1s`
-- Stop VMs when not used
-- Delete public IPs after testing
-- Delete resource group after lab
-
-Check usage:
-```bash
-az consumption usage list --top 5
-```
 
 ---
 
@@ -51,7 +45,9 @@ az group create \
 
 ---
 
-# 🟢 LAB 2 – Create VNet with Public & Private Subnets
+# 🟢 LAB 2 – Create VNet & Subnets
+
+Create VNet + Public Subnet:
 
 ```bash
 az network vnet create \
@@ -62,7 +58,7 @@ az network vnet create \
   --subnet-prefix 10.10.1.0/24
 ```
 
-Add private subnet:
+Create Private Subnet:
 
 ```bash
 az network vnet subnet create \
@@ -88,7 +84,8 @@ az vm create \
   --generate-ssh-keys
 ```
 
-Check IP:
+Check public IP:
+
 ```bash
 az vm list-ip-addresses -g rg-vnet-lab -n vm-public
 ```
@@ -112,7 +109,7 @@ az vm create \
 
 ---
 
-# 🟢 LAB 5 – Network Security Group
+# 🟢 LAB 5 – Network Security Group (NSG)
 
 Create NSG:
 
@@ -136,7 +133,7 @@ az network nsg rule create \
   --destination-port-range 22
 ```
 
-Attach to subnet:
+Attach NSG to subnet:
 
 ```bash
 az network vnet subnet update \
@@ -150,7 +147,7 @@ az network vnet subnet update \
 
 # 🟢 LAB 6 – Route Table (UDR)
 
-Create route table:
+Create Route Table:
 
 ```bash
 az network route-table create \
@@ -158,7 +155,7 @@ az network route-table create \
   --name rt-private
 ```
 
-Block internet:
+Block Internet Access:
 
 ```bash
 az network route-table route create \
@@ -181,9 +178,9 @@ az network vnet subnet update \
 
 ---
 
-# 🟢 LAB 7 – Service Endpoint
+# 🟢 LAB 7 – Service Endpoint (Storage)
 
-Enable storage endpoint:
+Enable service endpoint:
 
 ```bash
 az network vnet subnet update \
@@ -193,7 +190,7 @@ az network vnet subnet update \
   --service-endpoints Microsoft.Storage
 ```
 
-Create storage:
+Create storage account:
 
 ```bash
 az storage account create \
@@ -202,6 +199,8 @@ az storage account create \
   --location centralindia \
   --sku Standard_LRS
 ```
+
+Restrict network access from portal to selected networks only.
 
 ---
 
@@ -233,11 +232,13 @@ az network vnet create \
   --subnet-prefix 10.20.1.0/24
 ```
 
-Create peering (both sides required).
+Create peering on both VNets.
 
 ---
 
 # 🟢 LAB 10 – NAT Gateway (Optional)
+
+Create Public IP:
 
 ```bash
 az network public-ip create \
@@ -245,6 +246,8 @@ az network public-ip create \
   --name nat-pip \
   --sku Standard
 ```
+
+Create NAT Gateway:
 
 ```bash
 az network nat gateway create \
@@ -254,13 +257,13 @@ az network nat gateway create \
   --idle-timeout 4
 ```
 
-Attach NAT to private subnet.
+Attach NAT Gateway to private subnet.
 
 ---
 
 # 🟢 LAB 11 – Network Watcher
 
-Enable:
+Enable Network Watcher:
 
 ```bash
 az network watcher configure \
@@ -288,16 +291,17 @@ az group delete --name rg-vnet-lab --yes --no-wait
 
 ---
 
-# 🎯 What You Learned
+# 🎯 Concepts Covered
 
-- Public vs Private Subnet
-- NSG vs Route Table
-- Service Endpoint
-- Private Endpoint
-- VNet Peering
-- NAT Gateway
-- Internet Restriction
-- Network Monitoring
+* Public vs Private Subnets
+* NSG vs Route Table
+* Service Endpoints
+* Private Endpoints
+* VNet Peering
+* NAT Gateway
+* Internet Blocking
+* Network Diagnostics
 
 ---
 
+🚀 You just built a cost-optimized, production-style Azure networking lab.
