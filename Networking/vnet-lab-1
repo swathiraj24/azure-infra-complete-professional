@@ -1,57 +1,55 @@
+# 🎯 Azure VNet Master Lab – Cost Optimized (GitHub README)
 
-
-✅ Avoid expensive SKUs (no Firewall Premium, no ExpressRoute circuits)
-✅ Avoid large VM sizes
-✅ Avoid WAF_v2 unless optional
-✅ Clean up after every lab
-✅ Use smallest possible SKUs
-
-We will build Cost-Optimized, Real-Time Azure VNet Master Lab**.
-
----
-
-# 🎯 Azure VNet Master Lab 
-
-We will cover:
-
-1. VNet Creation
-2. Subnets
-3. NSG (Subnet vs NIC)
-4. Public vs Private VM
-5. Route Tables (UDR)
-6. Service Endpoints
-7. Private Endpoints
-8. VNet Peering
-9. NAT Gateway
-10. Bastion (optional safe method)
-11. Network Watcher
-
-Everything real-world. Everything minimal cost.
+> ✅ Avoid expensive SKUs
+> ✅ Use **Standard_B1s** only
+> ✅ No Firewall Premium
+> ✅ No ExpressRoute circuits
+> ✅ WAF_v2 avoided
+> ✅ Clean up after every lab
 
 ---
 
-# 🧠 Real-Time Architecture We Will Build
+# 🧠 Real-Time Architecture Overview
 
-![Image](https://learn.microsoft.com/en-us/azure/architecture/networking/guide/images/private-link-hub-spoke-network-basic-hub-spoke-diagram.svg)
+## 🏗️ Hub-Style VNet Architecture (Cost Optimized)
+
+![Image](https://learn.microsoft.com/en-us/azure/architecture/networking/architecture/_images/hub-spoke.png)
 
 ![Image](https://techcommunity.microsoft.com/t5/s/gxcuf89792/images/bS0zOTg0MTc3LTUyNjgwMGlGNjE0QUQ4Q0U0NTFDMERE?revision=9)
 
-![Image](https://learn.microsoft.com/en-us/azure/virtual-network/media/virtual-networks-udr-overview/routing-example.png)
+![Image](https://learn.microsoft.com/en-us/azure/storage/common/media/storage-private-endpoints/storage-private-endpoints-overview.jpg)
 
-![Image](https://learn.microsoft.com/en-us/azure/virtual-network/media/tutorial-create-route-table-portal/resources-diagram.png)
+![Image](https://learn.microsoft.com/en-us/azure/architecture/networking/guide/images/cross-tenant-secure-access-private-endpoints-architecture.svg)
 
 ---
 
-# 🛑 Before We Start – Cost Safety Rules
+# 📌 What You Will Build
 
-Use:
+| Component         | Purpose                  |
+| ----------------- | ------------------------ |
+| VNet              | Network boundary         |
+| Public Subnet     | Web Tier                 |
+| Private Subnet    | Backend Tier             |
+| NSG               | Traffic filtering        |
+| Route Table (UDR) | Control routing          |
+| Service Endpoint  | Secure PaaS access       |
+| Private Endpoint  | Private IP to PaaS       |
+| VNet Peering      | Cross-VNet communication |
+| NAT Gateway       | Outbound internet        |
+| Network Watcher   | Diagnostics              |
 
-* VM size: **Standard_B1s**
-* Stop VMs when not used
-* Delete public IP when done
-* Delete resource group at end
+---
 
-Check balance anytime:
+# 🛑 Cost Safety Rules
+
+| Rule                | Why                 |
+| ------------------- | ------------------- |
+| Use `Standard_B1s`  | Cheapest VM         |
+| Stop VMs when idle  | Save compute cost   |
+| Delete Public IPs   | Avoid IP charges    |
+| Delete RG after lab | Avoid surprise bill |
+
+Check usage anytime:
 
 ```bash
 az consumption usage list --top 5
@@ -59,11 +57,7 @@ az consumption usage list --top 5
 
 ---
 
-# 🟢 LAB 1 – Create Basic VNet
-
----
-
-## Step 1 – Create Resource Group
+# 🟢 LAB 1 – Create Resource Group
 
 ```bash
 az group create \
@@ -73,7 +67,7 @@ az group create \
 
 ---
 
-## Step 2 – Create VNet with Public & Private Subnets
+# 🟢 LAB 2 – Create VNet with Public & Private Subnets
 
 ```bash
 az network vnet create \
@@ -96,9 +90,7 @@ az network vnet subnet create \
 
 ---
 
-# 🟢 LAB 2 – Deploy Public VM (Web Tier)
-
-Equivalent to public EC2.
+# 🟢 LAB 3 – Deploy Public VM (Web Tier)
 
 ```bash
 az vm create \
@@ -120,9 +112,7 @@ az vm list-ip-addresses -g rg-vnet-lab -n vm-public
 
 ---
 
-# 🟢 LAB 3 – Deploy Private VM (Backend)
-
-No public IP.
+# 🟢 LAB 4 – Deploy Private VM (Backend Tier)
 
 ```bash
 az vm create \
@@ -139,11 +129,9 @@ az vm create \
 
 ---
 
-# 🟢 LAB 4 – Network Security Group
+# 🟢 LAB 5 – Network Security Group (NSG)
 
----
-
-## Create NSG
+Create NSG:
 
 ```bash
 az network nsg create \
@@ -177,9 +165,9 @@ az network vnet subnet update \
 
 ---
 
-# 🟢 LAB 5 – Route Table (UDR)
+# 🟢 LAB 6 – Route Table (UDR)
 
-Simulate firewall scenario.
+Create route table:
 
 ```bash
 az network route-table create \
@@ -187,7 +175,7 @@ az network route-table create \
   --name rt-private
 ```
 
-Add route blocking internet:
+Block internet:
 
 ```bash
 az network route-table route create \
@@ -208,13 +196,11 @@ az network vnet subnet update \
   --route-table rt-private
 ```
 
-Now private subnet has no internet access.
-
 ---
 
-# 🟢 LAB 6 – Service Endpoint
+# 🟢 LAB 7 – Service Endpoint
 
-Enable Storage Service Endpoint:
+Enable Storage Endpoint:
 
 ```bash
 az network vnet subnet update \
@@ -224,23 +210,19 @@ az network vnet subnet update \
   --service-endpoints Microsoft.Storage
 ```
 
-Create storage:
+Create storage account:
 
 ```bash
 az storage account create \
-  --name shivalabstorage \
+  --name shivalabstorage123 \
   --resource-group rg-vnet-lab \
   --location centralindia \
   --sku Standard_LRS
 ```
 
-Restrict access to VNet only via portal.
-
 ---
 
-# 🟢 LAB 7 – Private Endpoint (Modern Approach)
-
-Create private endpoint:
+# 🟢 LAB 8 – Private Endpoint (Secure Modern Method)
 
 ```bash
 az network private-endpoint create \
@@ -248,16 +230,16 @@ az network private-endpoint create \
   --name pe-storage \
   --vnet-name vnet-lab \
   --subnet private-subnet \
-  --private-connection-resource-id $(az storage account show --name shivalabstorage --query id -o tsv) \
+  --private-connection-resource-id $(az storage account show --name shivalabstorage123 --query id -o tsv) \
   --group-id blob \
   --connection-name storage-connection
 ```
 
-Now storage has private IP inside VNet.
+Now storage gets private IP inside VNet.
 
 ---
 
-# 🟢 LAB 8 – VNet Peering
+# 🟢 LAB 9 – VNet Peering
 
 Create second VNet:
 
@@ -270,13 +252,11 @@ az network vnet create \
   --subnet-prefix 10.20.1.0/24
 ```
 
-Peer both VNets.
+Peer VNets (bi-directional peering required).
 
 ---
 
-# 🟢 LAB 9 – NAT Gateway (Optional Safe)
-
-NAT Gateway costs small but safe short time.
+# 🟢 LAB 10 – NAT Gateway (Optional)
 
 ```bash
 az network public-ip create \
@@ -297,7 +277,7 @@ Attach to private subnet.
 
 ---
 
-# 🟢 LAB 10 – Network Watcher
+# 🟢 LAB 11 – Network Watcher
 
 Enable:
 
@@ -307,7 +287,7 @@ az network watcher configure \
   --enabled true
 ```
 
-Check connectivity:
+Test connectivity:
 
 ```bash
 az network watcher test-connectivity \
@@ -319,20 +299,20 @@ az network watcher test-connectivity \
 
 ---
 
-# 🎯 Real-Time Concepts You Just Covered
+# 🎯 Real-Time Concepts Covered
 
-✔ Public vs Private Subnet
-✔ NSG vs Route Table
-✔ Service Endpoint
-✔ Private Endpoint
-✔ VNet Peering
-✔ NAT Gateway
-✔ Internet restriction
-✔ Monitoring network
+* ✔ Public vs Private Subnet
+* ✔ NSG vs Route Table
+* ✔ Service Endpoint
+* ✔ Private Endpoint
+* ✔ VNet Peering
+* ✔ NAT Gateway
+* ✔ Internet Blocking
+* ✔ Network Diagnostics
 
 ---
 
-# 🛑 IMPORTANT – Delete Everything After Lab
+# 🛑 CLEANUP (VERY IMPORTANT)
 
 ```bash
 az group delete --name rg-vnet-lab --yes --no-wait
@@ -340,4 +320,24 @@ az group delete --name rg-vnet-lab --yes --no-wait
 
 ---
 
+# 🚀 Final Outcome
 
+You built a:
+
+* Production-style Azure network
+* Multi-tier architecture
+* Secure backend
+* Private PaaS access
+* Internet-controlled environment
+* Fully cost-optimized lab
+
+---
+
+If you'd like, I can now generate:
+
+* ✅ Advanced Hub-Spoke Version
+* ✅ Terraform Version
+* ✅ Diagram PNG for GitHub
+* ✅ Full Azure Networking Master README (All Services Covered)
+
+Just tell me 🔥
